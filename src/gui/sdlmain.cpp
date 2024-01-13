@@ -3634,8 +3634,9 @@ static void GUI_StartUp() {
 #endif
 
     void GEN_PowerButton(bool pressed);
-    MAPPER_AddHandler(&GEN_PowerButton,MK_nothing,0,"pwrbutton","APM power button", &item);
-    item->set_text("APM power button");
+    void Begin_Experiment(bool pressed);
+    MAPPER_AddHandler(&Begin_Experiment,MK_nothing,0,"pwrbutton","APM power button", &item);
+    item->set_text("Begin Experiment");
 
     MAPPER_AddHandler(&HideMenu_mapper_shortcut, MK_escape, MMODHOST, "togmenu", "Toggle menu bar", &item);
     item->set_text("Hide/show menu bar");
@@ -9827,4 +9828,18 @@ void POD_Load_Sdlmain( std::istream& stream )
 	// - pure data
 	READ_POD( &sdl.mouse.autolock, sdl.mouse.autolock );
 	READ_POD( &sdl.mouse.requestlock, sdl.mouse.requestlock );
+}
+
+void Begin_Experiment(bool pressed)
+{
+    if (pressed) {
+        LOG_MSG("Begun.");
+        LOG_MSG("Loading save state 0.");
+        SaveState::instance().load(0);
+
+        LOG_MSG("Pressing forward key.");
+        KEYBOARD_AddKey(KBD_up, true);
+        KEYBOARD_AddKey(KBD_up, false);
+        LOG_MSG("Done.");
+    }
 }
