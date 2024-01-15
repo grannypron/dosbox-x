@@ -12,6 +12,20 @@ The end results were that after about 250 test runs with vs. without enlarge on 
 
 To run the test, I built the vs/dosbox-x.sln, then ran it with -conf to potint to the dosbox_por.conf at the root of this distro.  That conf file points to the sav.sav file at the root of this distro (copied from saves/DOSBOX/sav-enlarge.sav or saves/DOSBOX/save-no_enlarge.sav, whichever type of test I was executing).  Then, I clicked the "Begin Experiment" menu item under the Main menu of the built DOSBox-X (that I hijacked from some other menu option) that runs the test.
 
+My test character was good ol' THRENDER GRONE, who I bumped up to 18(00) and level 7 via GBC:
+THRENDER GRONE
+STR 18(00)
+INT 12
+WIS 12
+DEX 17
+CON 16
+CHA 15
+THAC0 11
+BANDED MAIL
+LONG SWORD 
+
+I fought the notorious sack-throwing Trolls & Ogres in the Phlan Slums because 18(00) characters can hit big so I needed something with good hitpoints to absorb the high damage amounts, but then I had to level him up to level 7 for the THAC0 since Ogres are like AC4 and misses don't help me measure damage.
+
 
 Notes:
  - I did not take into effect the to-hit rolls.  Only hit rolls where damage was inflicted are counted.
