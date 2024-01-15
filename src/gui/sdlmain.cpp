@@ -9945,7 +9945,9 @@ int experiment(void* data)
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     // The hp of the OGRE we are attacking can be found at 44CC3 (thanks, GBC!) - 281,795 in decimal
-    uint64_t hp_address = 281795;
+    //uint64_t hp_address = 281795;
+    // 44DF3 is the address of the second save image that we are using where the Enlarge spell is applied
+    uint64_t hp_address = 282099;
     uint8_t hp;
     mem_readb_checked((PhysPt)hp_address, &hp);
     LOG_MSG(std::to_string(hp).append(" hp left").c_str());
@@ -9960,7 +9962,7 @@ int experiment(void* data)
 }
 
 int numRuns = 0;
-const int maxRuns = 10;
+const int maxRuns = 1000;
 
 void sendRunExperimentEvent() {
     numRuns++;
@@ -9997,10 +9999,9 @@ int experiments(void* data) {
     while(run) {
         std::this_thread::sleep_for(std::chrono::milliseconds(150));
         while(SDL_PollEvent(&event)) {  // poll until all events are handled!
-            LOG_MSG(std::string("Event raised ").append(std::to_string(event.type)).c_str());
             if(event.type == SDL_USEREVENT) {
+                LOG_MSG(std::string("User event raised code ").append(std::to_string(event.user.code)).c_str());
                 if (event.user.code > 0) {
-                    LOG_MSG(std::string("Executing run").append(std::to_string(event.user.code)).c_str());
                     experiment(data);
                 }
                 else {
