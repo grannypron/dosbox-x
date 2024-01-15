@@ -79,6 +79,7 @@ void DOSBox_SetSysMenu(void), GFX_OpenGLRedrawScreen(void), InitFontHandle(void)
 void MenuBrowseProgramFile(void), OutputSettingMenuUpdate(void), aspect_ratio_menu(void), update_pc98_clock_pit_menu(void), AllocCallback1(void), AllocCallback2(void), ToggleMenu(bool pressed);
 extern int tryconvertcp, Reflect_Menu(void);
 
+
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
 #endif
@@ -177,6 +178,8 @@ BOOL CALLBACK EnumDispProc(HMONITOR hMon, HDC dcMon, RECT* pRcMon, LPARAM lParam
 }
 #endif
 #endif
+
+extern void processExperimentEvent(SDL_Event*);
 
 #if defined(WIN32) && defined(__MINGW32__) /* MinGW does not have IID_ITaskbarList3 */
 /* MinGW now contains this, the older MinGW for HX-DOS does not.
@@ -5859,7 +5862,7 @@ void GFX_Events() {
 
         switch (event.type) {
         case SDL_USEREVENT: {
-            LOG_MSG("Event happened");
+            processExperimentEvent(&event);
             break;
         }
 #ifdef __WIN32__
@@ -9834,7 +9837,6 @@ void POD_Load_Sdlmain( std::istream& stream )
 	READ_POD( &sdl.mouse.requestlock, sdl.mouse.requestlock );
 }
 
-const int maxRuns = 1;
 
 bool waitForString(std::string s, uint64_t start_address) {
     LOG_MSG(std::string("Waiting for ").append(s).append(" at ").append(std::to_string(start_address)).c_str());
@@ -9933,18 +9935,54 @@ int experiment(void* data)
     return 0;
 }
 
+int numRuns = 0;
+const int maxRuns = 10;
+
+void sendRunExperimentEvent() {
+    numRuns++;
+    SaveState::instance().load(0);
+
+    SDL_Event event;
+    SDL_memset(&event, 0, sizeof(event));
+    event.type = SDL_USEREVENT;
+    event.user.code = numRuns;
+    SDL_PushEvent(&event);
+}
+
+void processExperimentEvent(SDL_Event* event) {
+    LOG_MSG("Event happened");
+    if(event->user.code > 0) {
+        LOG_MSG("Not for me");
+        SDL_PushEvent(event);
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));
+    }
+    else {
+
+        if(numRuns > maxRuns) {
+            LOG_MSG("Done.");
+            return;
+        }
+        sendRunExperimentEvent();
+    }
+}
+
 int experiments(void* data) {
     bool run = true;
 
     SDL_Event event;
     while(run) {
         std::this_thread::sleep_for(std::chrono::milliseconds(150));
-
         while(SDL_PollEvent(&event)) {  // poll until all events are handled!
             LOG_MSG(std::string("Event raised ").append(std::to_string(event.type)).c_str());
-            if(event.type == SDL_USEREVENT && event.user.code > 0) {
-                LOG_MSG(std::string("Executing run").append(std::to_string(event.user.code)).c_str());
-                experiment(data);
+            if(event.type == SDL_USEREVENT) {
+                if (event.user.code > 0) {
+                    LOG_MSG(std::string("Executing run").append(std::to_string(event.user.code)).c_str());
+                    experiment(data);
+                }
+                else {
+                    SDL_PushEvent(&event);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+                }
             }
         }
     }
@@ -9958,16 +9996,9 @@ void Begin_Experiment(bool pressed)
         CPU_CycleMax = 30000;
         SDL_Thread* thread;
         LOG_MSG("Loading save state 0.");
-
-        SaveState::instance().load(0);
-
-        SDL_Event event;
-        SDL_memset(&event, 0, sizeof(event));
-        event.type = SDL_USEREVENT;
-        event.user.code = 1;
-        SDL_PushEvent(&event);
-
         thread = SDL_CreateThread(experiments, NULL);
+
+        sendRunExperimentEvent();
 
     }
 
