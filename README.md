@@ -10,8 +10,11 @@ While this may seem like a lot of work, it was also just fun and C++ exercise an
 
 The end results were that after about 250 test runs with vs. without enlarge on a 18(00) character, my findings show that the average damage without Enlarge rolls damage to be 10.93189964, but with Enlarge, 11.03555556.  I would chalk up the 1% difference to be %error due to sample size and say that casting Enlarge on an 18(00) character has NO effect on damage.
 
+To run the test, I built the vs/dosbox-x.sln, then ran it with -conf to potint to the dosbox_por.conf at the root of this distro.  That conf file points to the sav.sav file at the root of this distro (copied from sav-enlarge.sav or save-no_enlarge.sav, whichever type of test I was executing).  Then, I clicked the "Begin Experiment" menu item under the Main menu of the built DOSBox-X (that I hijacked from some other menu option) that runs the test.
+
 Notes:
  - I did not take into effect the to-hit rolls.  Only hit rolls where damage was inflicted are counted.
  - I logged the resulting hp in the DOSBox logger - not the most efficient for parsing out the results, but it worked.  Notepad++ has lots of great regex tools to pull the raw numbers out.
  - Memory locations that contain the resulting hp of the enemy I was attacking (ogre) are transient with each run of the game.  I had to find the location in memory bewteen the save game with and without Enlarge cast.
- - Threading got tricky:
+ - Threading got tricky: I figured that I had to use threading because the main game thread had to run the game and my thread had to send inputs and wait for the game to run them, and I can't wait on a the main thread if I am running from the main thread.  But, when I tried to load the state (via SaveState::instance().load()) from a thread other than the main SDL thread, it crashed.  So, I had to use the SDL_PushEvent, SDL_PollEvent method described at https://wiki.libsdl.org/SDL2/SDL_PushEvent#remarks to communcate between threads.
+ - 
