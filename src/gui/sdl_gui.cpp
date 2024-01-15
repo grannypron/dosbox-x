@@ -3283,11 +3283,7 @@ static void UI_Execute(GUI::ScreenSDL *screen) {
     // event loop
     while (running) {
         while (SDL_PollEvent(&event)) {
-            LOG_MSG("Event happenedx");
             switch (event.type) {
-            case SDL_USEREVENT: {
-                LOG_MSG("Event happened");
-            }
 #if defined(_WIN32) && !defined(HX_DOS)
                 case SDL_SYSWMEVENT : {
                     switch ( event.syswm.msg->

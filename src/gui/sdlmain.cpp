@@ -5856,9 +5856,12 @@ void GFX_Events() {
         }
 #endif
         /* end patch fragment */
-        LOG_MSG("Event happened");
 
         switch (event.type) {
+        case SDL_USEREVENT: {
+            LOG_MSG("Event happened");
+            break;
+        }
 #ifdef __WIN32__
         case SDL_SYSWMEVENT : {
             switch( event.syswm.msg->msg ) {
@@ -9830,7 +9833,8 @@ void POD_Load_Sdlmain( std::istream& stream )
 	READ_POD( &sdl.mouse.autolock, sdl.mouse.autolock );
 	READ_POD( &sdl.mouse.requestlock, sdl.mouse.requestlock );
 }
-const static int maxRuns = 1;
+
+const int maxRuns = 1;
 
 bool waitForString(std::string s, uint64_t start_address) {
     LOG_MSG(std::string("Waiting for ").append(s).append(" at ").append(std::to_string(start_address)).c_str());
@@ -9851,106 +9855,119 @@ bool waitForString(std::string s, uint64_t start_address) {
     return false;
 }
 
-static int task1(void* data)
+int experiment(void* data)
 {
-    for (int numRuns=0; numRuns < maxRuns; numRuns++) {
-        LOG_MSG(std::string("Executing run #").append(std::to_string(numRuns)).c_str());
 
-        /**
-            I was thinking that the game clock was used for random number seeding, but it turned out not to be, but these
-            code snippets might end up being useful someday 
-        // Set game time to a unique value
-        //uint8_t current_hours;
-        //uint8_t current_minutes;
+    /**
+        I was thinking that the game clock was used for random number seeding, but it turned out not to be, but these
+        code snippets might end up being useful someday 
+    // Set game time to a unique value
+    //uint8_t current_hours;
+    //uint8_t current_minutes;
 
-        // Just for reference: Game minutes are at offset 0000018E in the SAVGAM#.DAT file and hours are at 00000192
-        // In my save state file (and possibly all .sav files), hours are at 39AE2 and minutes are at 39ADE in memory
-        //uint64_t hours_address = 236258;
-        //uint64_t minutes_address = 236254;
-        //mem_readb_checked((PhysPt)hours_address, &current_hours);
-        //mem_readb_checked((PhysPt)minutes_address, &current_minutes);
+    // Just for reference: Game minutes are at offset 0000018E in the SAVGAM#.DAT file and hours are at 00000192
+    // In my save state file (and possibly all .sav files), hours are at 39AE2 and minutes are at 39ADE in memory
+    //uint64_t hours_address = 236258;
+    //uint64_t minutes_address = 236254;
+    //mem_readb_checked((PhysPt)hours_address, &current_hours);
+    //mem_readb_checked((PhysPt)minutes_address, &current_minutes);
 
-        //int hours_to_add = numRuns / 60;
-        //int minutes_to_add = numRuns % 60;
-        //const uint8_t new_current_hours = current_hours + hours_to_add;
-        //const uint8_t new_current_minutes = current_minutes + minutes_to_add;
-        //std::string s = std::to_string(current_hours);
+    //int hours_to_add = numRuns / 60;
+    //int minutes_to_add = numRuns % 60;
+    //const uint8_t new_current_hours = current_hours + hours_to_add;
+    //const uint8_t new_current_minutes = current_minutes + minutes_to_add;
+    //std::string s = std::to_string(current_hours);
 
-        //const char* tmp = s.append(":").append(std::to_string(current_minutes)).c_str();
-        //systemmessagebox("Setting time to", tmp, "ok", "error", 1);
-        //LOG_MSG(tmp);
-        //mem_writeb_checked((PhysPt)hours_address, new_current_hours);
-        //mem_writeb_checked((PhysPt)minutes_address, new_current_minutes);
-        **/
+    //const char* tmp = s.append(":").append(std::to_string(current_minutes)).c_str();
+    //systemmessagebox("Setting time to", tmp, "ok", "error", 1);
+    //LOG_MSG(tmp);
+    //mem_writeb_checked((PhysPt)hours_address, new_current_hours);
+    //mem_writeb_checked((PhysPt)minutes_address, new_current_minutes);
+    **/
 
-        /** Don't need these code snippents anymore since I found that I can change randomness inside a battle without
-            loading it up, but these might be useful someday 
-        //LOG_MSG("Pressing forward key.");
-        //KEYBOARD_AddKey(KBD_up, true);
-        //KEYBOARD_AddKey(KBD_up, false);
+    /** Don't need these code snippents anymore since I found that I can change randomness inside a battle without
+        loading it up, but these might be useful someday 
+    //LOG_MSG("Pressing forward key.");
+    //KEYBOARD_AddKey(KBD_up, true);
+    //KEYBOARD_AddKey(KBD_up, false);
 
-        // wait for 20EF6-20F17 to be "PRESS <ENTER>/<RETURN> TO CONTINUE" - Battle intro message
-        //"50 52 45 53 53 20 3C 45 4E 54 45 52 3E 2F 3C 52 45 54 55 52 4E 3E 20 54 4F 20 43 4F 4E 54 49 4E 55 45"
-        //std::string wait_string1 = "PRESS <ENTER> /<RETURN> TO CONTINUE";
-        //if(!waitForString(wait_string1, 134902)) {
-        //    systemmessagebox("Expected message not found", wait_string1.c_str(), "ok", "error", 1);
-        //    return 1;
-        //}
+    // wait for 20EF6-20F17 to be "PRESS <ENTER>/<RETURN> TO CONTINUE" - Battle intro message
+    //"50 52 45 53 53 20 3C 45 4E 54 45 52 3E 2F 3C 52 45 54 55 52 4E 3E 20 54 4F 20 43 4F 4E 54 49 4E 55 45"
+    //std::string wait_string1 = "PRESS <ENTER> /<RETURN> TO CONTINUE";
+    //if(!waitForString(wait_string1, 134902)) {
+    //    systemmessagebox("Expected message not found", wait_string1.c_str(), "ok", "error", 1);
+    //    return 1;
+    //}
 
-        //LOG_MSG("Expected message found.  Pressing Enter key.");
-        //KEYBOARD_AddKey(KBD_enter, true);
-        //KEYBOARD_AddKey(KBD_enter, false);
+    //LOG_MSG("Expected message found.  Pressing Enter key.");
+    //KEYBOARD_AddKey(KBD_enter, true);
+    //KEYBOARD_AddKey(KBD_enter, false);
 
-        // wait for 20EAE-20EB6 to be "Move View" - part of the battle menu
-        //"4D 6F 76 65 20 56 69 65 77"
-        std::string wait_string2 = "Move View";
-        if(!waitForString(wait_string2, 134830)) {
-            systemmessagebox("Expected message not found", wait_string2.c_str(), "ok", "error", 1);
-            return 1;
-        }*/
-        KEYBOARD_AddKey(KBD_m, true);
-        KEYBOARD_AddKey(KBD_m, false);
+    // wait for 20EAE-20EB6 to be "Move View" - part of the battle menu
+    //"4D 6F 76 65 20 56 69 65 77"
+    std::string wait_string2 = "Move View";
+    if(!waitForString(wait_string2, 134830)) {
+        systemmessagebox("Expected message not found", wait_string2.c_str(), "ok", "error", 1);
+        return 1;
+    }*/
+    KEYBOARD_AddKey(KBD_m, true);
+    KEYBOARD_AddKey(KBD_m, false);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(150));
-        KEYBOARD_AddKey(KBD_left, true);
-        KEYBOARD_AddKey(KBD_left, false);
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+    KEYBOARD_AddKey(KBD_left, true);
+    KEYBOARD_AddKey(KBD_left, false);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        // The hp of the OGRE we are attacking can be found at 44CC3 (thanks, GBC!) - 281,795 in decimal
-        uint64_t hp_address = 281795;
-        uint8_t hp;
-        mem_readb_checked((PhysPt)hp_address, &hp);
-        LOG_MSG(std::to_string(hp).append(" hp left").c_str());
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    // The hp of the OGRE we are attacking can be found at 44CC3 (thanks, GBC!) - 281,795 in decimal
+    uint64_t hp_address = 281795;
+    uint8_t hp;
+    mem_readb_checked((PhysPt)hp_address, &hp);
+    LOG_MSG(std::to_string(hp).append(" hp left").c_str());
 
-        SDL_Event event;
-        SDL_memset(&event, 0, sizeof(event)); /* or SDL_zero(event) */
-        event.type = SDL_USEREVENT;
-        SDL_PushEvent(&event);
+    SDL_Event event;
+    SDL_memset(&event, 0, sizeof(event)); /* or SDL_zero(event) */
+    event.type = SDL_USEREVENT;
+    event.user.code = 0;
+    SDL_PushEvent(&event);
 
-    }
-    LOG_MSG("Done.");
     return 0;
 }
 
+int experiments(void* data) {
+    bool run = true;
 
+    SDL_Event event;
+    while(run) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+        while(SDL_PollEvent(&event)) {  // poll until all events are handled!
+            LOG_MSG(std::string("Event raised ").append(std::to_string(event.type)).c_str());
+            if(event.type == SDL_USEREVENT && event.user.code > 0) {
+                LOG_MSG(std::string("Executing run").append(std::to_string(event.user.code)).c_str());
+                experiment(data);
+            }
+        }
+    }
+    return 0;
+}
 
 void Begin_Experiment(bool pressed)
 {
     if (pressed) {
         LOG_MSG("Begun.");
-
-        SDL_Event event;
-        SDL_memset(&event, 0, sizeof(event)); /* or SDL_zero(event) */
-        event.type = SDL_USEREVENT;
-        SDL_PushEvent(&event);
-
-
         CPU_CycleMax = 30000;
         SDL_Thread* thread;
         LOG_MSG("Loading save state 0.");
+
         SaveState::instance().load(0);
-        thread = SDL_CreateThread(task1, NULL);
-        
+
+        SDL_Event event;
+        SDL_memset(&event, 0, sizeof(event));
+        event.type = SDL_USEREVENT;
+        event.user.code = 1;
+        SDL_PushEvent(&event);
+
+        thread = SDL_CreateThread(experiments, NULL);
 
     }
 
