@@ -100,6 +100,8 @@ extern int tryconvertcp, Reflect_Menu(void);
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <gtest/gtest.h>
+#include <iostream>
+#include <random>
 #ifdef WIN32
 # include <signal.h>
 # include <process.h>
@@ -9912,6 +9914,28 @@ int experiment(void* data)
         systemmessagebox("Expected message not found", wait_string2.c_str(), "ok", "error", 1);
         return 1;
     }*/
+
+
+ 
+    // Randomization seeds seem to be at 18E18 in memory - 4 bytes worth
+    uint64_t random_seed_address_start = 101912;
+
+    std::random_device rd; // obtain a random number from hardware
+    std::mt19937 gen(rd()); // seed the generator
+    std::uniform_int_distribution<> distr(0, 255); // define the range
+
+    // Randomize PoR RNG seed values
+    const uint8_t rng1 = distr(gen);
+    const uint8_t rng2 = distr(gen);
+    const uint8_t rng3 = distr(gen);
+    const uint8_t rng4 = distr(gen);
+
+    // Set the values in memory
+    mem_writeb_checked((PhysPt)random_seed_address_start, rng1);
+    mem_writeb_checked((PhysPt)random_seed_address_start + 1, rng2);
+    mem_writeb_checked((PhysPt)random_seed_address_start + 2, rng3);
+    mem_writeb_checked((PhysPt)random_seed_address_start + 3, rng4);
+
     KEYBOARD_AddKey(KBD_m, true);
     KEYBOARD_AddKey(KBD_m, false);
 
