@@ -10,7 +10,7 @@ While this may seem like a lot of work, it was also just fun and C++ exercise an
 
 The end results were that after about 250 test runs with vs. without enlarge on a 18(00) character, my findings show that the average damage without Enlarge rolls damage to be 10.93189964, but with Enlarge, 11.03555556.  I would chalk up the 1% difference to be %error due to sample size and say that casting Enlarge on an 18(00) character has NO effect on damage.
 
-To run the test, I built the vs/dosbox-x.sln, then ran it with -conf to potint to the dosbox_por.conf at the root of this distro.  That conf file points to the sav.sav file at the root of this distro (copied from sav-enlarge.sav or save-no_enlarge.sav, whichever type of test I was executing).  Then, I clicked the "Begin Experiment" menu item under the Main menu of the built DOSBox-X (that I hijacked from some other menu option) that runs the test.
+To run the test, I built the vs/dosbox-x.sln, then ran it with -conf to potint to the dosbox_por.conf at the root of this distro.  That conf file points to the sav.sav file at the root of this distro (copied from saves/DOSBOX/sav-enlarge.sav or saves/DOSBOX/save-no_enlarge.sav, whichever type of test I was executing).  Then, I clicked the "Begin Experiment" menu item under the Main menu of the built DOSBox-X (that I hijacked from some other menu option) that runs the test.
 
 
 Notes:
@@ -22,3 +22,4 @@ Notes:
  - I tried to run a batch of 1000 tests, but for some reason my event polling strategy stopped after about 350-375 runs for reasons that I don't understand.  It was sufficient to get results, but if someone else is using this, be prepared for that problem.  I am no expert in concurrency :/
  - There is some code in there about the game clock and waiting for text messages which is unused at the moment, but I thought it might be useful.
  - Game system clock of some sort seems to be at 0046C (or maybe that is just DOS, idk).  Game clock is found at 0:39ADE & 0:39AE2 - minutes and hours, respectively.
+ - My PoR saves that have my characters are in saves/POOLRAD
