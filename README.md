@@ -14,6 +14,7 @@ To run the test, I built the vs/dosbox-x.sln, then ran it with -conf to potint t
 
 My test character was good ol' THRENDER GRONE, who I bumped up to 18(00) and level 7 via GBC:
 | THRENDER GRONE| 
+| ----------- |
 | STR 18(00)| 
 | INT 12| 
 | WIS 12| 
